@@ -14,7 +14,6 @@
 
 ![communityboard_erd.png](communityboard_erd.png)
 
-
 ---
 
 ## 🚀 주요 기능
