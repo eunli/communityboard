@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,4 +43,12 @@ public class User extends BaseEntity {
   private UserStatus status = UserStatus.ACTIVE;
 
   private LocalDateTime deletedAt;
+
+  @Builder
+  public User(String email, String password, String nickname, Role role) {
+    this.email = email;
+    this.password = password;
+    this.nickname = nickname;
+    this.role = role;
+  }
 }
