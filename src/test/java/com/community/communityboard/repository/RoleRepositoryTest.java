@@ -8,10 +8,13 @@ import com.community.communityboard.repository.RoleRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
+@DataJpaTest
+@TestPropertySource(locations = "classpath:application-test.yml")
 public class RoleRepositoryTest {
 
   @Autowired
