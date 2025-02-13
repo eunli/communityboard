@@ -200,7 +200,7 @@ public class UserServiceImpl implements UserService {
   public UserResponseDto updateUser(Long userId, UpdateUserRequestDto requestDto) {
     User user = findUserById(userId);
 
-    if (requestDto.getNickname() != null && !requestDto.getNickname().isBlank()) {
+    if (requestDto.getNickname() != null) {
       Optional<User> existingUser = userRepository.findByNickname(requestDto.getNickname());
       if (existingUser.isPresent() && !existingUser.get().getId().equals(userId)) {
         throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
@@ -208,10 +208,7 @@ public class UserServiceImpl implements UserService {
       user.setNickname(requestDto.getNickname());
     }
 
-    if (requestDto.getPassword() != null
-        && requestDto.getNewPassword() != null
-        && !requestDto.getPassword().isBlank()
-        && !requestDto.getNewPassword().isBlank()) {
+    if (requestDto.getPassword() != null && requestDto.getNewPassword() != null) {
       if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
         throw new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD);
       }
