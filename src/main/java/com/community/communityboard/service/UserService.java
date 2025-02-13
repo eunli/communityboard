@@ -7,7 +7,6 @@ import com.community.communityboard.dto.user.SignupRequestDto;
 import com.community.communityboard.dto.user.TokenResponseDto;
 import com.community.communityboard.dto.user.UpdateUserRequestDto;
 import com.community.communityboard.dto.user.UserResponseDto;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

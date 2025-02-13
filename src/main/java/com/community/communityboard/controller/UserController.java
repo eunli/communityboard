@@ -10,7 +10,6 @@ import com.community.communityboard.dto.user.UserResponseDto;
 import com.community.communityboard.security.CustomUserDetails;
 import com.community.communityboard.service.UserService;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

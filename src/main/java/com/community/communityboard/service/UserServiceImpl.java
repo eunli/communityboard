@@ -18,10 +18,8 @@ import com.community.communityboard.repository.UserRepository;
 import com.community.communityboard.security.JwtTokenProvider;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -220,8 +218,6 @@ public class UserServiceImpl implements UserService {
       user.setPassword(passwordEncoder.encode(requestDto.getNewPassword()));
     }
 
-    userRepository.save(user);
-
     return UserResponseDto.builder()
         .id(user.getId())
         .email(user.getEmail())
@@ -237,7 +233,6 @@ public class UserServiceImpl implements UserService {
     User user = findUserById(userId);
     user.setStatus(UserStatus.DEACTIVATED);
     user.setDeletedAt(LocalDateTime.now());
-    userRepository.save(user);
   }
 
   // 액세스 토큰 재발급 (리프레시 토큰 함께 재발급)
