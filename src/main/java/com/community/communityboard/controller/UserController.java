@@ -12,6 +12,10 @@ import com.community.communityboard.service.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -99,8 +104,13 @@ public class UserController {
   // 전체 회원 조회 (관리자)
   @GetMapping("/all")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-    List<UserResponseDto> result = userService.getAllUsers();
+  public ResponseEntity<Page<UserResponseDto>> getAllUsers(
+      @RequestParam(value = "page", defaultValue = "1") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size
+  ) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+    Page<UserResponseDto> result = userService.getAllUsers(pageable);
     return ResponseEntity.ok(result);
   }
 

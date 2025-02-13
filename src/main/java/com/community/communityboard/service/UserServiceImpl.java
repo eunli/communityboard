@@ -23,6 +23,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.mail.MailSender;
@@ -177,11 +179,10 @@ public class UserServiceImpl implements UserService {
 
   // 전체 회원 조회 (관리자)
   @Override
-  public List<UserResponseDto> getAllUsers() {
-    List<User> users = userRepository.findAll();
+  public Page<UserResponseDto> getAllUsers(Pageable pageable) {
+    Page<User> userPage = userRepository.findAll(pageable);
 
-    return users.stream()
-        .map(user -> UserResponseDto.builder()
+    return userPage.map(user -> UserResponseDto.builder()
             .id(user.getId())
             .email(user.getEmail())
             .nickname(user.getNickname())
@@ -190,9 +191,7 @@ public class UserServiceImpl implements UserService {
             .createdAt(user.getCreatedAt())
             .updatedAt(user.getUpdatedAt())
             .deletedAt(user.getDeletedAt())
-            .build()
-        )
-        .collect(Collectors.toList());
+            .build());
   }
 
   // 회원 정보 수정

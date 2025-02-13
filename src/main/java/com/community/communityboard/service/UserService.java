@@ -8,6 +8,8 @@ import com.community.communityboard.dto.user.TokenResponseDto;
 import com.community.communityboard.dto.user.UpdateUserRequestDto;
 import com.community.communityboard.dto.user.UserResponseDto;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
 
@@ -33,7 +35,7 @@ public interface UserService {
   UserResponseDto getUser(Long userId);
 
   // 전체 회원 조회 (관리자)
-  List<UserResponseDto> getAllUsers();
+  Page<UserResponseDto> getAllUsers(Pageable pageable);
 
   // 회원 정보 수정
   UserResponseDto updateUser(Long userId, UpdateUserRequestDto requestDto);
