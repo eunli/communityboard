@@ -13,6 +13,7 @@ import com.community.communityboard.dto.user.UpdateUserRequestDto;
 import com.community.communityboard.dto.user.UserResponseDto;
 import com.community.communityboard.exception.CustomException;
 import com.community.communityboard.exception.ErrorCode;
+import com.community.communityboard.repository.RefreshTokenRepository;
 import com.community.communityboard.repository.RoleRepository;
 import com.community.communityboard.repository.UserRepository;
 import com.community.communityboard.security.JwtTokenProvider;
@@ -37,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
   private static final String EMAIL_VERIFICATION_PREFIX = "EMAIL_VERIF:";
-  private static final String REFRESH_TOKEN_PREFIX = "RT:";
 
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
   private final JwtTokenProvider jwtTokenProvider;
   private final StringRedisTemplate redisTemplate;
   private final MailSender mailSender;
+  private final RefreshTokenRepository refreshTokenRepository;
 
   private User findUserById(Long id) {
     return userRepository.findById(id)
@@ -132,10 +133,11 @@ public class UserServiceImpl implements UserService {
 
     String hashedRefreshToken = passwordEncoder.encode(refreshToken);
 
-    // key "RT:유저아이디", value 리프레시토큰 -> 해시된 Refresh Token 저장
-    ValueOperations<String, String> ops = redisTemplate.opsForValue();
-    ops.set(REFRESH_TOKEN_PREFIX + user.getId(), hashedRefreshToken, Duration.ofMillis(
-        jwtTokenProvider.getRemainMillisecond(refreshToken)));
+    refreshTokenRepository.save(
+        user.getId(),
+        hashedRefreshToken,
+        Duration.ofMillis(jwtTokenProvider.getRemainMillisecond(refreshToken))
+    );
 
     return TokenResponseDto.builder()
         .accessToken(accessToken)
@@ -146,7 +148,7 @@ public class UserServiceImpl implements UserService {
   // 로그아웃 - Redis에 저장된 RefreshToken 제거
   @Override
   public void logout(Long userId) {
-    redisTemplate.delete(REFRESH_TOKEN_PREFIX + userId);
+    refreshTokenRepository.delete(userId);
   }
 
   // 내 정보 조회
@@ -236,7 +238,6 @@ public class UserServiceImpl implements UserService {
   @Override
   public TokenResponseDto reissueTokens(String accessToken, String refreshToken) {
     // Access Token 유효성 검증 - 여전히 유효하다면 만료 전이므로 재발급 거부
-    System.out.println(jwtTokenProvider.validateToken(accessToken));
     if (jwtTokenProvider.validateToken(accessToken)) {
       throw new CustomException(ErrorCode.ACCESS_TOKEN_NOT_EXPIRED_YET);
     }
@@ -249,9 +250,9 @@ public class UserServiceImpl implements UserService {
     Long userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
 
     // Redis에 저장된 리프레시 토큰 일치 확인 (일치하지 않을 시 탈취 위험으로 Redis에서 토큰 삭제)
-    String StoredHashedRt = redisTemplate.opsForValue().get(REFRESH_TOKEN_PREFIX + userId);
+    String StoredHashedRt = refreshTokenRepository.get(userId);
     if (StoredHashedRt == null || !passwordEncoder.matches(refreshToken, StoredHashedRt)) {
-      redisTemplate.delete(REFRESH_TOKEN_PREFIX + userId);
+      refreshTokenRepository.delete(userId);
       throw new CustomException(ErrorCode.REFRESH_TOKEN_MISMATCH);
     }
 
@@ -261,8 +262,12 @@ public class UserServiceImpl implements UserService {
     String newRefreshToken = jwtTokenProvider.createRefreshToken(user);
 
     String newHashedRt = passwordEncoder.encode(newRefreshToken);
-    redisTemplate.opsForValue()
-        .set(REFRESH_TOKEN_PREFIX + userId, newHashedRt, Duration.ofMillis(jwtTokenProvider.getRemainMillisecond(newRefreshToken)));
+
+    refreshTokenRepository.save(
+        userId,
+        newHashedRt,
+        Duration.ofMillis(jwtTokenProvider.getRemainMillisecond(newRefreshToken))
+    );
 
     return TokenResponseDto.builder()
         .accessToken(newAccessToken)
