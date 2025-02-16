@@ -14,7 +14,11 @@ public enum ErrorCode {
   REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "RefreshToken 불일치. 재로그인이 필요합니다."),
 
   // Role
-  USER_ROLE_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "User Role이 존재하지 않습니다.");
+  USER_ROLE_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "User Role이 존재하지 않습니다."),
+
+  // Post
+  POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
+  UNAUTHORIZED_POST_ACCESS(HttpStatus.FORBIDDEN, "작성자 또는 관리자만 게시글을 수정/삭제할 수 있습니다.");
 
   private final HttpStatus status;
   private final String message;
