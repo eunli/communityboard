@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,4 +38,12 @@ public class Comment extends BaseEntity {
   private String content;
 
   private LocalDateTime deletedAt;
+
+  @Builder
+  public Comment(User user, Post post, Comment parent, String content) {
+    this.user = user;
+    this.post = post;
+    this.parent = parent;
+    this.content = content;
+  }
 }

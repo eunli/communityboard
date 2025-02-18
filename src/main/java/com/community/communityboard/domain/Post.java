@@ -7,14 +7,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
+@DynamicUpdate
 public class Post extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,4 +37,12 @@ public class Post extends BaseEntity {
 
   @Column(nullable = false)
   private int commentCount = 0;
+
+  @Builder
+  public Post(User user, String title, String content, String imageUrl) {
+    this.user = user;
+    this.title = title;
+    this.content = content;
+    this.imageUrl = imageUrl;
+  }
 }
